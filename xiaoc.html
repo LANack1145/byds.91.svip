@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>动态网格跟随效果</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            perspective: 1000px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            z-index: 10;
+            position: relative;
+            pointer-events: none;
+        }
+
+        h1 {
+            font-size: 4rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(100, 200, 255, 0.7);
+            font-weight: 800;
+            letter-spacing: 2px;
+            background: linear-gradient(to right, #4cc9f0, #4361ee, #7209b7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            max-width: 600px;
+            opacity: 0.8;
+            line-height: 1.6;
+        }
+
+        .grid-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+            gap: 0;
+            pointer-events: none;
+        }
+
+        .grid-item {
+            position: relative;
+            aspect-ratio: 1/1;
+            transition: transform 0.1s ease-out, background-color 0.3s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform-style: preserve-3d;
+            border-radius: 5px;
+            pointer-events: auto;
+            overflow: hidden;
+        }
+
+        .grid-item:after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(2px);
+            transition: all 0.3s ease;
+            z-index: -1;
+            border-radius: 5px;
+        }
+
+        .grid-item:hover:after {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(4px);
+            transform: scale(0.9);
+        }
+
+        .instructions {
+            position: fixed;
+            bottom: 30px;
+            padding: 15px 30px;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            font-size: 1.1rem;
+            text-align: center;
+            max-width: 90%;
+            z-index: 10;
+        }
+
+        .color-controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            z-index: 10;
+            position: relative;
+        }
+
+        .color-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid white;
+            transition: transform 0.3s ease;
+        }
+
+        .color-btn:hover {
+            transform: scale(1.3);
+        }
+
+        .blue-theme { background: linear-gradient(45deg, #4361ee, #4cc9f0); }
+        .purple-theme { background: linear-gradient(45deg, #7209b7, #b5179e); }
+        .green-theme { background: linear-gradient(45deg, #2ec4b6, #06d6a0); }
+        .red-theme { background: linear-gradient(45deg, #f72585, #ef476f); }
+
+        .counter {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.3);
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            backdrop-filter: blur(10px);
+            z-index: 10;
+        }
+
+        /* 悬浮导航按钮样式 */
+        .floating-nav {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+        }
+
+        .nav-button {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(67, 97, 238, 0.8);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            position: absolute;
+            bottom: 0;
+            right: 0;
+        }
+
+        .nav-button:hover {
+            transform: scale(1.1);
+            background: rgba(67, 97, 238, 1);
+        }
+
+        .nav-button.main {
+            z-index: 1001;
+        }
+
+        .nav-button.sub {
+            width: 50px;
+            height: 50px;
+            font-size: 18px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #4361ee;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        .nav-button.sub:hover {
+            background: white;
+            transform: translateY(20px) scale(1.1);
+        }
+
+        .floating-nav.expanded .nav-button.sub {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .floating-nav.expanded .nav-button.sub:nth-child(2) {
+            transform: translateY(-70px);
+            transition-delay: 0.05s;
+        }
+
+        .floating-nav.expanded .nav-button.sub:nth-child(3) {
+            transform: translateY(-140px);
+            transition-delay: 0.1s;
+        }
+
+        .floating-nav.expanded .nav-button.sub:nth-child(4) {
+            transform: translateY(-210px);
+            transition-delay: 0.15s;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 3rem;
+            }
+
+            .grid-container {
+                grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+            }
+
+            .header {
+                padding: 0 20px;
+            }
+
+            .instructions {
+                font-size: 0.9rem;
+                padding: 10px 20px;
+                bottom: 10px;
+            }
+
+            .floating-nav {
+                bottom: 20px;
+                right: 20px;
+            }
+
+            .nav-button {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+
+            .nav-button.sub {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <h1>动态网格跟随效果</h1>
+    <p class="subtitle">移动鼠标让网格元素舞动起来！网格会跟随鼠标产生物理运动效果</p>
+    <div class="color-controls">
+        <div class="color-btn blue-theme" data-theme="blue"></div>
+        <div class="color-btn purple-theme" data-theme="purple"></div>
+        <div class="color-btn green-theme" data-theme="green"></div>
+        <div class="color-btn red-theme" data-theme="red"></div>
+    </div>
+</div>
+
+<div class="grid-container" id="grid"></div>
+
+<div class="counter" id="counter">网格数: 0</div>
+
+<div class="instructions">
+    <p>请移动鼠标与网格互动 - 网格元素将跟随鼠标位置产生物理运动效果</p>
+</div>
+
+<!-- 悬浮导航按钮 -->
+<div class="floating-nav">
+    <div class="nav-button main">☰</div>
+    <div class="nav-button sub">H</div>
+    <div class="nav-button sub">1</div>
+    <div class="nav-button sub">2</div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const grid = document.getElementById('grid');
+        const counterElement = document.getElementById('counter');
+
+        // 创建网格元素
+        function createGrid() {
+            // 清除现有网格
+            grid.innerHTML = '';
+
+            // 根据视口大小计算网格数量
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            const cellSize = 70; // 网格单元大小
+            const cols = Math.ceil(width / cellSize);
+            const rows = Math.ceil(height / cellSize);
+            const gridCount = cols * rows;
+
+            // 更新计数器
+            counterElement.textContent = `网格数: ${gridCount}`;
+
+            // 创建网格元素
+            for (let i = 0; i < gridCount; i++) {
+                const item = document.createElement('div');
+                item.classList.add('grid-item');
+                grid.appendChild(item);
+            }
+        }
+
+        // 初始创建网格
+        createGrid();
+
+        // 窗口调整时更新网格
+        window.addEventListener('resize', createGrid);
+
+        // 鼠标移动效果
+        let mouseX = 0;
+        let mouseY = 0;
+
+        // 跟踪鼠标位置
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        // 网格元素物理运动效果
+        function animateItems() {
+            const items = document.querySelectorAll('.grid-item');
+
+            items.forEach(item => {
+                const rect = item.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+
+                // 计算网格中心到鼠标的距离
+                const distanceX = mouseX - centerX;
+                const distanceY = mouseY - centerY;
+                const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+
+                // 最大影响距离
+                const maxDistance = 300;
+
+                // 设置动画参数
+                if (distance < maxDistance) {
+                    // 计算移动偏移量（基于距离的反比例函数）
+                    const moveX = (distanceX / distance) * (1 - distance/maxDistance) * 40;
+                    const moveY = (distanceY / distance) * (1 - distance/maxDistance) * 40;
+
+                    // 应用移动效果
+                    item.style.transform = `translate3d(${moveX}px, ${moveY}px, 0) scale(${1 + (1 - distance/maxDistance) * 0.3})`;
+
+                    // 应用颜色渐变
+                    const distFactor = Math.max(0, (1 - distance/maxDistance));
+                    const r = Math.floor(70 + 185 * distFactor);
+                    const g = Math.floor(200 - 100 * distFactor);
+                    const b = Math.floor(255);
+                    item.style.backgroundColor = `rgba(${r}, ${g}, ${b}, ${0.2 + 0.3 * distFactor})`;
+                } else {
+                    // 鼠标离得太远则恢复原状
+                    item.style.transform = '';
+                    item.style.backgroundColor = 'rgba(100, 180, 255, 0.1)';
+                }
+            });
+
+            // 继续动画循环
+            requestAnimationFrame(animateItems);
+        }
+
+        // 启动动画
+        animateItems();
+
+        // 主题切换功能
+        const colorButtons = document.querySelectorAll('.color-btn');
+        colorButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const theme = btn.getAttribute('data-theme');
+                applyTheme(theme);
+            });
+        });
+
+        // 应用主题
+        function applyTheme(theme) {
+            const colors = {
+                'blue': ['#1a1a2e', '#16213e', '#0f3460'],
+                'purple': ['#141432', '#201c3d', '#0b0b29'],
+                'green': ['#0d2818', '#133f2a', '#044423'],
+                'red': ['#2d0611', '#3f0d25', '#250212']
+            };
+
+            if (colors[theme]) {
+                document.body.style.background =
+                    `linear-gradient(135deg, ${colors[theme][0]}, ${colors[theme][1]}, ${colors[theme][2]})`;
+            }
+        }
+
+        // 初始蓝色主题
+        applyTheme('blue');
+
+        // 悬浮导航按钮功能
+        const floatingNav = document.querySelector('.floating-nav');
+        const mainButton = floatingNav.querySelector('.main');
+
+        // 切换导航展开状态
+        mainButton.addEventListener('click', function(e) {
+            e.stopPropagation();
+            floatingNav.classList.toggle('expanded');
+        });
+
+        // 点击页面其他地方收起导航
+        document.addEventListener('click', function(e) {
+            if (!floatingNav.contains(e.target)) {
+                floatingNav.classList.remove('expanded');
+            }
+        });
+
+        // 导航按钮点击事件
+        const subButtons = floatingNav.querySelectorAll('.sub');
+        subButtons.forEach((button, index) => {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation();
+
+                // 根据按钮文本导航到不同页面
+                switch(this.textContent) {
+                    case 'H':
+                        window.location.href = 'index.html';
+                        break;
+                    case '1':
+                        window.location.href = 'xiaob.html';
+                        break;
+                    case '2':
+                        window.location.href = 'projectB.html';
+                        break;
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

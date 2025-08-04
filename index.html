@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>byds月抛站</title>
+    <link rel="icon" href="byds.png" type="image/png">
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --nav-bg: #f8f9fa;
+            --nav-border: #dee2e6;
+            --card-bg: #f8f9fa;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        .dark-mode {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --nav-bg: #1e1e1e;
+            --nav-border: #333333;
+            --card-bg: #1e1e1e;
+            --shadow: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* 导航栏样式 */
+        .navbar {
+            width: 250px;
+            background-color: var(--nav-bg);
+            border-right: 1px solid var(--nav-border);
+            padding: 20px;
+            height: 100vh;
+            position: fixed;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .logo img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        .nav-links {
+            flex-grow: 1;
+        }
+
+        .nav-links a {
+            display: block;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            text-decoration: none;
+            color: var(--text-color);
+            border-radius: 5px;
+            transition: background-color 0.2s;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .dark-mode .nav-links a:hover,
+        .dark-mode .nav-links a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .theme-toggle {
+            padding: 10px 15px;
+            background-color: rgba(0, 0, 0, 0.05);
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+            user-select: none;
+        }
+
+        .dark-mode .theme-toggle {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .theme-toggle:hover {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .dark-mode .theme-toggle:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* 主内容区样式 */
+        .main-content {
+            flex-grow: 1;
+            margin-left: 250px;
+            padding: 30px;
+        }
+
+        .page-title {
+            margin-bottom: 30px;
+            font-size: 2rem;
+        }
+
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px var(--shadow);
+            transition: transform 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .card-content {
+            padding: 20px;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .card-description {
+            color: var(--text-color);
+            opacity: 0.8;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .site-title {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        /* 移动设备适配 */
+        @media (max-width: 768px) {
+            .navbar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                padding: 15px;
+                border-right: none;
+                border-bottom: 1px solid var(--nav-border);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            .cards-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- 左侧导航栏 -->
+<nav class="navbar">
+    <div class="logo">
+        <img src="byds.png" alt="Logo">
+    </div>
+
+    <div class="nav-links">
+        <a href="index.html" class="active">首页</a>
+        <a href="xiaoa.html">项目一</a> <!-- 关键修改：添加了正确的项目链接 -->
+        <a href="xiaob.html">项目二</a>
+        <a href="xiaoc.html">项目三</a>
+        <a href="wenzhanga.html">文章一</a>
+        <a href="#">文章二</a>
+    </div>
+
+    <div class="theme-toggle" id="themeToggle">
+        切换主题
+    </div>
+</nav>
+
+<!-- 主内容区 -->
+<main class="main-content">
+    <h1 class="page-title">欢迎访问 byds 官方网站</h1>
+
+    <div class="cards-container">
+        <div class="card">
+            <img src="byds.png" alt="byds 项目">
+            <div class="card-content">
+                <h3 class="card-title">byds</h3>
+                <p class="card-description">byds，全称biyangdesi，于1313年18月91日创立</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <img src="transit.png" alt="Transit 项目">
+            <div class="card-content">
+                <h3 class="card-title">Transit</h3>
+                <p class="card-description">全世界最牛逼的黑客组织，于公元前9191年9月1日创立</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="site-title">byds月抛站</div>
+</main>
+
+<script>
+    // 主题切换功能
+    const themeToggle = document.getElementById('themeToggle');
+    const body = document.body;
+    const navLinks = document.querySelectorAll('.nav-links a');
+
+    // 检查本地存储的主题偏好
+    if (localStorage.getItem('theme') === 'dark') {
+        body.classList.add('dark-mode');
+    }
+
+    themeToggle.addEventListener('click', () => {
+        body.classList.toggle('dark-mode');
+
+        // 保存用户偏好
+        if (body.classList.contains('dark-mode')) {
+            localStorage.setItem('theme', 'dark');
+        } else {
+            localStorage.setItem('theme', 'light');
+        }
+    });
+
+    // 导航链接激活状态 - 根据当前URL设置活动状态
+    function setActiveNavLink() {
+        const currentPath = window.location.pathname.split('/').pop();
+
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+
+            if (link.getAttribute('href') === currentPath) {
+                link.classList.add('active');
+            }
+        });
+    }
+
+    // 初始设置激活状态
+    setActiveNavLink();
+
+    // 点击导航项时设置激活状态
+    navLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            navLinks.forEach(l => l.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+</script>
+</body>
+</html>

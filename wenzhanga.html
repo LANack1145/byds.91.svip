@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>重生到安东星世界</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Microsoft YaHei', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+      color: #e0e0e0;
+      line-height: 1.8;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: rgba(30, 30, 46, 0.8);
+      border-radius: 10px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="none" stroke="%23333" stroke-width="1"/></svg>');
+      opacity: 0.1;
+      z-index: -1;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(100, 150, 255, 0.3);
+      position: relative;
+    }
+
+    .title {
+      font-size: 3.5rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+      text-shadow: 0 0 15px rgba(100, 200, 255, 0.7);
+      background: linear-gradient(to right, #4cc9f0, #4361ee, #7209b7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: 2px;
+    }
+
+    .subtitle {
+      font-size: 1.2rem;
+      opacity: 0.9;
+      color: #a0c8ff;
+    }
+
+    .chapter {
+      margin-bottom: 50px;
+      padding: 20px;
+      background: rgba(25, 25, 40, 0.6);
+      border-radius: 8px;
+      border-left: 3px solid #4361ee;
+      position: relative;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .chapter:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .chapter-title {
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+      color: #4cc9f0;
+      font-weight: 600;
+      text-shadow: 0 0 5px rgba(76, 201, 240, 0.5);
+    }
+
+    .content {
+      font-size: 1.1rem;
+      text-align: justify;
+      margin-bottom: 20px;
+    }
+
+    .highlight {
+      background: rgba(67, 97, 238, 0.2);
+      padding: 2px 5px;
+      border-radius: 3px;
+      font-weight: 500;
+    }
+
+    .emoji {
+      font-size: 1.3rem;
+      margin: 0 3px;
+      vertical-align: middle;
+    }
+
+    .floating-nav {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      z-index: 1000;
+    }
+
+    .nav-button {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #4361ee, #4cc9f0);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      user-select: none;
+    }
+
+    .nav-button:hover {
+      transform: scale(1.1);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .nav-items {
+      position: absolute;
+      bottom: 70px;
+      right: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      opacity: 0;
+      transform: translateY(20px);
+      pointer-events: none;
+      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    }
+
+    .nav-items.active {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: all;
+    }
+
+    .nav-item {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: white;
+      color: #4361ee;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 1.2rem;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s ease, background 0.3s ease;
+      text-decoration: none;
+    }
+
+    .nav-item:hover {
+      transform: scale(1.1);
+      background: #f0f0f0;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(100, 150, 255, 0.3);
+      color: #a0c8ff;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      .title {
+        font-size: 2.5rem;
+      }
+
+      .chapter-title {
+        font-size: 1.5rem;
+      }
+
+      .content {
+        font-size: 1rem;
+      }
+
+      .floating-nav {
+        bottom: 20px;
+        right: 20px;
+      }
+
+      .nav-button {
+        width: 50px;
+        height: 50px;
+        font-size: 1.3rem;
+      }
+
+      .nav-item {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1 class="title">重生到安东星世界</h1>
+    <div class="subtitle">在虚拟与现实的夹缝中寻找存在的意义</div>
+  </div>
+
+  <div class="chapter">
+    <h2 class="chapter-title">第一章：666标准开局</h2>
+    <p class="content">
+      我的名字叫做阿帕奇，在这个世界，我原本是一名彻头彻尾的失败者，每天只能在虚拟世界中寻求一丝性上的安慰<span class="emoji">🥛</span>。
+    </p>
+    <p class="content">
+      可是，在我打开Steam接触了一款游戏后，我的人生彻底改变了<span class="emoji">😱😱</span>！这款游戏的名字叫做<span class="highlight">《War Thunder》</span>，中文名<span class="highlight">《战争雷霆》</span>。
+    </p>
+    <p class="content">
+      在这款游戏中，我得到了真正的慰藉，从此每天回到家我必须第一时间打开这款伟大的游戏。
+    </p>
+    <p class="content">
+      直到有一天，我日常打开战雷后，因为白天过于劳累忘记关掉游戏就入睡了。当我睡着的时候，电脑发出一阵强烈的蓝光……
+    </p>
+    <p class="content">
+      我被这股诡异的蓝光吸进了电脑。
+    </p>
+  </div>
+
+  <div class="chapter">
+    <h2 class="chapter-title">第二章：我的长官</h2>
+    <p class="content">
+      当我再次醒来时，身处一个军营中。我在病床上醒来，此刻进来一位身高1米7以上的长官，这位长官对我露出了笑容，询问道：<span class="highlight">"Oi小子，还想睡多久啊。"</span>
+    </p>
+    <p class="content">
+      此刻我的脑子中还是一脸懵，对他说道：<span class="highlight">"你是？"</span> 那位长官的笑容变成了疑惑的神情，说道：<span class="highlight">"666别想摆烂，是我喜欢的兵，直接高难度训练<span class="emoji">😡</span>！"</span>我被这位长官强行拉了出来。
+    </p>
+    <p class="content">
+      在外面，阳光洒在我的身上，我却能感受到温暖。此刻我心中终于意识到：<span class="highlight">卧槽？穿越了？！</span>我向四周巡视着，只见右边的大门上立着几个硕大的红字——<span class="highlight">"战狼训练营"</span>。
+    </p>
+    <p class="content">
+      长官貌似注意到了我奇怪的样子，略带担心地问道：<span class="highlight">"你小子没事吧？ 难不成上次行动给你脑子炸失忆了？"</span>我心中想着：事到如今，也只能这么说了。于是我便告诉长官我失忆了。
+    </p>
+    <p class="content">
+      长官在我面前立正，挺胸，宛如一杆利剑，说道：<span class="highlight">"现在！阿帕奇队员！我是你在这个训练营中的长官！你可以叫我寿司长官！你明白吗！"</span>
+    </p>
+    <p class="content">
+      我立马点头答应：<span class="highlight">"是！长官！"</span>
+    </p>
+  </div>
+
+  <div class="chapter">
+    <h2 class="chapter-title">第三章：钢铁淬炼</h2>
+    <p class="content">
+      寿司长官的吼声在训练场上炸开：<span class="highlight">"阿帕奇！你以为失忆就能躲过战狼的规矩？"</span>他猛地将一套迷彩服甩到我胸前，<span class="highlight">"三分钟内换好，然后给我滚到障碍场！"</span>
+    </p>
+    <p class="content">
+      我手忙脚乱地套上衣服，布料摩擦皮肤的刺痛感真实得离谱——<span class="highlight">这他妈真是游戏世界？</span>远处的铁丝网上挂着"666分队专属"的锈牌，几个肌肉虬结的士兵正扛着原木狂奔，汗珠在阳光下像弹壳般迸溅。
+    </p>
+    <p class="content">
+      <span class="highlight">"俯卧撑200个！现在！"</span>寿司一脚踹在我屁股上，<span class="highlight">"别用那种菜鸟眼神看我！你上次用RPG轰掉T-72的狠劲呢？"</span>我趴在地上疯狂起伏，肺里灌满了混合着火药味的尘土。突然，脑内闪过一串数据：<span class="highlight">【载具熟练度：虎式坦克（未解锁）】</span>——这见鬼的游戏界面居然还在！
+    </p>
+    <p class="content">
+      <span class="highlight">"报告长官！"</span>我喘着粗气指向天空，<span class="highlight">"如果我能用高射炮打中那架无人机，能不能提前吃晚饭？"</span>寿司眯起眼睛，扔来一把扳手：<span class="highlight">"先修好你昨天撞烂的BMP-1再说！"</span>远处传来爆炸声，地平线上腾起的蘑菇云将夕阳染成血红色——看来这个世界的<span class="highlight">"日常任务"</span>，比Steam成就残酷得多。
+    </p>
+  </div>
+
+  <div class="chapter">
+    <h2 class="chapter-title">第四章：钢铁雄鹰</h2>
+    <p class="content">
+      我刚把BMP-1的发动机盖板扣上，整片训练场突然被刺耳的防空警报撕碎。<span class="highlight">"全体卧倒！"</span>寿司长官的吼声还在空中飘着，天空就传来震耳欲聋的轰鸣——三架歼-20组成的箭形编队正以剃刀般的精度掠过，垂尾上<span class="highlight">"Gof中队"</span>的狼头徽章在阳光下闪着寒光。
+    </p>
+    <p class="content">
+      <span class="highlight">"给老子爬过来！"</span>寿司揪着我衣领往前拖。跑道尽头站着个穿飞行夹克的男人，他右眼的机械义眼正闪烁着数据流，左手机械臂上赫然刻着<span class="highlight">"专治各种不服"</span>六个大字。<span class="highlight">"菜鸟，"</span>他摘下墨镜露出半张机械脸，<span class="highlight">"听说你想用红旗-17打无人机？"</span>
+    </p>
+    <p class="content">
+      我还没咽下口水，这位Gof上校突然把飞行头盔砸在我脸上。头盔内衬伸出纳米探针，直接扎进太阳穴。<span class="highlight">【新任务：空中格斗训练（0/1）】</span>的游戏界面在眼前炸开，同时跳出来的还有Gof的个人战绩——217架击坠记录，全部用99A坦克的炮弹壳镶嵌在机械臂上展示。
+    </p>
+    <p class="content">
+      <span class="highlight">"两分钟。"</span>Gof的机械手指掐住我后颈，把我拖向那架涂着<span class="highlight">"666"</span>编号的歼-10C，<span class="highlight">"要么现在起飞证明你是战狼的人，要么我把你塞进霹雳-15导弹打出去。"</span>他的笑声混着WS-10发动机的咆哮，我惊恐地发现这架战机的垂尾上焊着行小字：<span class="highlight">"本机专收各种菜鸟"</span>。
+    </p>
+    <p class="content">
+      寿司在远处疯狂比划抹脖子动作，但Gof已经用机械臂把我塞进座舱。随着平显亮起，我绝望地看到游戏商城里所有金币载具都变成了灰色——在这个鬼世界，<span class="highlight">连氪金改命的退路都被切断了！</span>
+    </p>
+  </div>
+
+  <div class="chapter">
+    <h2 class="chapter-title">第五章：血火试炼</h2>
+    <p class="content">
+      我颤抖的双手刚握住操纵杆，Gof的歼-20已经带着音爆云扑来。<span class="highlight">"菜鸟，先过我这关！"</span>他的机炮在座舱盖上扫出一串火花，平显立刻跳出<span class="highlight">【敌机锁定】</span>的红色警告。
+    </p>
+    <p class="content">
+      <span class="highlight">"你他妈倒是动啊！"</span>我猛拉操纵杆，歼-10C的涡扇发动机发出怒吼，机体几乎垂直爬升。突然，游戏界面在眼前闪烁：<span class="highlight">【紧急任务：击落王牌飞行员（1/1）】</span>——经验值后面跟着三个金色感叹号。
+    </p>
+    <p class="content">
+      我本能地按下导弹发射钮，两枚霹雳-12拖着尾焰扑向Gof。这疯子居然迎着导弹来了个"眼镜蛇机动"，导弹擦着垂尾掠过。<span class="highlight">"不错嘛！"</span>他的声音从无线电传来，<span class="highlight">"现在看看三点钟方向——"</span>
+    </p>
+    <p class="content">
+      地平线上突然出现密集的黑点，十二架F-35组成的攻击编队正贴着树梢高度突袭！<span class="highlight">"美帝的野狗来偷家了！"</span>寿司的怒吼从塔台炸响，<span class="highlight">"全体注意，99A坦克连前出防御，红旗-9防空系统开机！"</span>
+    </p>
+    <p class="content">
+      我眼睁睁看着美军机群投下JDAM炸弹，训练场瞬间化作火海。Gof的歼-20突然从我侧翼掠过，机翼下挂载的雷石-6滑翔炸弹闪着寒光：<span class="highlight">"跟上我，菜鸟！让他们见识下什么叫战狼的欢迎仪式！"</span>
+    </p>
+    <p class="content">
+      我们两机以剪刀机动切入敌阵，平显上的敌机标识多得像暴雨时的雨点。当我的霹雳-15终于咬住一架F-35时，游戏界面突然弹出金色特效：<span class="highlight">【成就解锁：首杀王牌（美制F-35×1）】</span>。远处，99A坦克的125mm滑膛炮正在轰碎M1A2的炮塔，被击毁的美军坦克残骸上，<span class="highlight">"666分队"</span>的涂鸦在烈焰中格外刺眼。
+    </p>
+  </div>
+
+  <div class="chapter">
+    <h2 class="chapter-title">第五章：最终试炼</h2>
+    <p class="content">
+      当最后一架F-35拖着黑烟坠向地平线，频道里充斥着各单位的欢呼和报告声。突然，一个<span class="highlight">柔和却清晰</span>的女声切入了加密频道，与周围的嘈杂形成鲜明对比：
+    </p>
+    <p class="content">
+      <span class="highlight">"666分队，战狼指挥中心呼叫。制空权确认夺取，干得漂亮，阿帕奇队员，Gof上校。"</span> 声音如同山涧清泉，带着一种抚慰人心的力量，<span class="highlight">"这里是通讯员汐临，已为你们标记了安全返航路线和补给点坐标。辛苦了，欢迎回家。"</span>
+    </p>
+    <p class="content">
+      这声音像一只温柔的手，瞬间抚平了我紧绷的神经。Gof在频道里吹了个口哨：<span class="highlight">"哟，汐临妹子，谢了。这小菜鸟手还没抖掉呢。"</span> 我愣了一下，还没来得及回应，那个柔和的声音再次响起，带着一丝不易察觉的笑意：<span class="highlight">"新人的首杀战绩很棒，阿帕奇队员，保持状态。指挥中心持续为您护航。"</span>
+    </p>
+  </div>
+
+  <div class="chapter">
+    <h2 class="chapter-title">第六章：喜悦后的压力</h2>
+    <p class="content">
+      短暂的胜利喜悦被海风的咸腥瞬间吹散。寿司长官的皮靴碾在我脚背上转了个圈，迷彩服肩头被扯开的裂缝立刻灌满了冷风。他唾沫星子混着黄沙喷在我脸上：<span class="highlight">"卵蛋！扛个少尉衔就飘了？老子当年在朱日和推蓝军指挥部的时候，你小子还在虚拟舱里打飞机呢！"</span>
+    </p>
+    <p class="content">
+      我龇牙咧嘴地按住左肩——那副银底一杠的上尉肩章被他活活用巴掌楔进肩章绊里的，针尖扎得锁骨生疼。抬头望去，铅灰色的海平线上，071型船坞登陆舰正张开巨口，05式两栖突击车如同钢铁蝌蚪，顺着泛白的浪涌冲向滩头；更远处，翔鹤少校的039B潜艇指挥塔像鲨鱼背鳍般在浪谷间若隐若现。
+    </p>
+    <p class="content">
+      <span class="highlight">"报告寿司长官！我……"</span>
+    </p>
+    <p class="content">
+      <span class="highlight">"闭嘴！"</span>他猛地揪住我领口，迷彩服纽扣崩飞进沙地，<span class="highlight">"看见鹰嘴礁后面那片暗流没有？"</span>他裹着机油味的手指几乎戳裂我视网膜，<span class="highlight">"十二艘022导弹艇藏在里面！你的玩具！"</span>他狞笑着抹了把脸上的盐霜，<span class="highlight">"第一波登陆前半小时，给老子把脚盆鸡的滩头雷达站和岸防导弹犁平！少打掉一个火力点……"</span>他铁钳般的手掌突然卡住我喉咙，<span class="highlight">"老子就把你焊在红箭-10导弹上当自毁引信！"</span>
+    </p>
+    <p class="content">
+      涡轮引擎的尖啸撕裂空气。Gof的歼-20以一个近乎垂直的俯冲扎向我们身旁，沙尘暴般的气流差点把我掀翻。舱盖滑开时，他半个机械身子探出座舱，义眼红光扫过我的肩章：<span class="highlight">"恭喜啊，菜鸟上尉。"</span>他嗤笑一声，机械臂咔嚓咬住我头盔侧面的数据接口，<span class="highlight">"任务坐标已同步，你队里的二十二个活人，老子可都备份了神经图谱。"</span>他胸腔装甲突然弹开，露出个闪烁着倒计时的黑色匣子——猩红的数字正从59:59开始跳动。
+    </p>
+    <p class="content">
+      <span class="highlight">"登陆行动失败的话……"</span>Gof把匣子塞进我颤抖的手心，钢铁指节敲了敲起爆钮，<span class="highlight">"自己按，别连累老子去数据库捞人。"</span>他缩回座舱前突然咧嘴，露出白森森的牙齿：<span class="highlight">"对了，鬼子今天刚把90式坦克换成10式，爆反装甲能扛三发红箭-73——不想部下变烤鸡的话，最好用鹰击-83从舰艏灌顶。"</span>歼-20的涡扇喷出蓝焰腾空，垂尾上<span class="highlight">"专收菜鸟"</span>的刻字在夕照里淌着血光。
+    </p>
+    <p class="content">
+      寿司一脚踹在我屁股上：<span class="highlight">"滚去港口！老子的99A主攻集群等你开路！"</span>他甩过来的望远镜砸中我胸口，镜筒里赫然映出滩头——五座89式反舰导弹发射架正从伪装网下升起，六辆10式坦克的120毫米滑膛炮管缓缓压平。风里传来翔鹤少校潜艇部队的主动声呐脉冲，嗡嗡震得脚底发麻。
+    </p>
+    <p class="content">
+      就在我心头沉甸甸地攥紧起爆匣，转身冲向022艇编队时，头盔内置的通讯器里传来那个熟悉而<span class="highlight">柔和的声音</span>：
+    </p>
+    <p class="content">
+      <span class="highlight">"阿帕奇上尉，这里是汐临。"</span> 她的声音像镇定剂一样注入我的神经，<span class="highlight">"022编队'狼群'已在线，各艇状态良好。敌滩头防御坐标及火控雷达扫描数据已同步至你的作战终端。我会持续监控战场态势和通讯中继，请保持频道畅通。祝行动顺利。"</span>
+    </p>
+    <p class="content">
+      这及时的指引和沉静的语调，像黑暗中的一盏小灯。我深吸一口带着咸腥和机油味的空气，回应道：<span class="highlight">"收到，汐临。保持联络。"</span> 冲向港口的脚步似乎都稳了一些。身后，寿司的吼叫穿透海风追来：<span class="highlight">"给老子活着滚回来喝酒！死了别进战狼的英灵殿！"</span>
+    </p>
+  </div>
+
+  <div class="chapter">
+    <h2 class="chapter-title">第七章：怒海惊涛</h2>
+    <p class="content">
+      海浪在022导弹艇舷侧炸成惨白的碎沫，驾驶舱里倒计时的红光像动脉破裂般泼满仪表盘——<span class="highlight">59:23</span>。我对着通讯器嘶吼：<span class="highlight">"狐尾礁方位！鹰击-83两发齐射！"</span>艇身猛震，两枚反舰导弹拖着硫磺色尾焰撕裂雨幕，远处滩头炸起两朵裹着装甲碎片的蘑菇云。
+    </p>
+    <p class="content">
+      <span class="highlight">"战狼呼叫666！"</span>寿司的咆哮混着99A坦克的炮击声灌入耳膜，<span class="highlight">"卵蛋！还有三座雷达站啃不动？老子的主攻集群被岸防火力压在海浪线了！"</span>
+    </p>
+    <p class="content">
+      我眼睁睁看着四艘022艇在火球中解体，燃烧的残骸正被黑色浪涌吞噬。Gof的歼-20突然从云层中垂直扎下，机腹挂载的雷石-6精确制导炸弹连续点爆两辆10式坦克。<span class="highlight">"菜鸟上尉！"</span>他的机械音带着电流杂音刺进耳蜗，<span class="highlight">"看见那艘提康德罗加级巡洋舰没有？给老子用艇身撞过去！"</span>
+    </p>
+    <p class="content">
+      寿司的骂声几乎震碎通讯器：<span class="highlight">"疯狗Gof！老子的兵不是神风特攻队！"</span>
+    </p>
+    <p class="content">
+      仪表盘警报疯响，美军阿利·伯克级驱逐舰的127mm舰炮炮弹正凿进我左舷海面。平显突然跳出金色提示：<span class="highlight">【成就解锁：狼群猎杀（摧毁岸防节点×9）】</span>。但倒计时只剩下<span class="highlight">00:47</span>。
+    </p>
+    <p class="content">
+      就在这令人绝望的时刻，汐临的声音急促却依然<span class="highlight">努力维持着平稳</span>，切入了最高优先级频道：
+    </p>
+    <p class="content">
+      <span class="highlight">"阿帕奇！寿司长官！侦测到提康德罗加级巡洋舰右舷近防系统出现短暂故障间隙！伯克舰的炮击受我方潜艇干扰，下一轮预测落点在……规避路线已规划上传！……阿帕奇，目标弹药库结构弱点数据已高亮标记！……请一定……"</span> 她的声音第一次带上了一丝压抑不住的颤抖，<span class="highlight">"……请一定要回来。你的队员们……还在等着他们的指挥官。"</span> 最后那句温柔而坚定的嘱托，像一根细线，在狂风巨浪中系住了我最后的理智。
+    </p>
+    <p class="content">
+      <span class="highlight">"收到弱点数据！谢了，汐临！"</span>我几乎是凭着本能嘶吼回应，<span class="highlight">"寿司长官！"</span>我猛打方向舵，燃烧的022艇如同离弦之箭，以七十节航速劈开巨浪，艇艏直指巡洋舰右舷那处致命的标记点！<span class="highlight">"告诉炊事班……火锅底料多放朝天椒！"</span>
+    </p>
+    <p class="content">
+      猩红的倒计时数字在视网膜上疯狂跳动。最后一秒，我死死盯住屏幕上汐临标记的那个红点，用尽全身力气按下起爆钮！巨大的冲击力和火光吞噬一切的瞬间，通讯器里似乎还残留着她最后那句带着微颤的呼唤。猩红数字归零的刹那，Gof的机械义眼在冲天火光中闪过一丝冰冷的蓝光：<span class="highlight">"神经图谱备份完成。"</span>
+    </p>
+  </div>
+
+  <div class="chapter">
+    <h2 class="chapter-title">第八章：余烬重生</h2>
+    <p class="content">
+      喉头火烧般的剧痛让我从键盘上弹起来。冷汗浸透的T恤黏在背上，电脑屏幕蓝光幽幽，War Thunder登录界面静静悬在桌面——那艘燃烧的022导弹艇正定格在宣传图上。窗外洒进来的晨光刺得眼睛发痛，指尖残留着按下起爆钮的幻痛，耳畔似乎还回响着海浪的咆哮和……一个温柔却带着绝望颤音的女声呼唤。
+    </p>
+    <p class="content">
+      摸过手机，手指有些发僵地点开战雷贴吧，拇指无意识刷新着页面。突然，一张截图猛撞进视线：玩家ID<span class="highlight">"Gof_ACE"</span>上传的歼-20座舱视角。云层下，一艘涂着<span class="highlight">"666"</span>编号的022艇正决绝地撞向美军巡洋舰的右舷，截图边缘半截机械臂清晰可见，臂甲上<span class="highlight">"专治各种不服"</span>的刻痕血迹斑斑。
+    </p>
+    <p class="content">
+      评论区第一条赫然是ID<span class="highlight">"寿司卷死美畜"</span>的留言：<span class="highlight">"火锅底料加倍了，卵蛋速归。"</span>配图是游戏里整排列队的99A坦克，炮管齐指苍穹。
+    </p>
+    <p class="content">
+      就在我本能地滑动屏幕时，一条新的评论被顶了上来。ID是简单的两个字母：<span class="highlight">"Ayaxilin"</span>。没有文字，只发了一张游戏内通讯兵角色的截图，角色静静地坐在布满屏幕的指挥台前，头上戴着雪白的通讯耳机，侧脸在屏幕蓝光映照下显得专注而柔和。截图角落，一只纤细的手正指向一个通讯频道标识——<span class="highlight">"Wolf-666"</span>。
+    </p>
+    <p class="content">
+      我猛地攥紧了手机，掌心似乎还残留着那个冰冷起爆匣的棱角和被汗水浸透的触感。海风裹着火药味、钢铁灼烧的焦糊味，以及一种难以言喻的、仿佛通讯频道里传来的淡淡电子元件气息混合而成的咸腥感，顽固地盘桓在鼻腔深处。寿司粗粝的吼叫、Gof冰冷的机械音，还有那个最终带着颤抖的、温柔而坚定的女声——<span class="highlight">"请一定要回来"</span>——在颅骨里嗡嗡作响，交织盘旋，比窗外喧嚣的车流声更加真实，更加沉重。
+    </p>
+  </div>
+
+  <div class="footer">
+    <p>© 2023 byds月抛站 | 重生到安东星世界</p>
+  </div>
+</div>
+
+<!-- 悬浮导航栏 -->
+<div class="floating-nav">
+  <div class="nav-items" id="navItems">
+    <a href="index.html" class="nav-item">H</a>
+    <a href="wenzhangb.html" class="nav-item">2</a>
+  </div>
+  <div class="nav-button" id="navButton">☰</div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const navButton = document.getElementById('navButton');
+    const navItems = document.getElementById('navItems');
+
+    navButton.addEventListener('click', function() {
+      navItems.classList.toggle('active');
+    });
+
+    // 点击页面其他地方关闭导航
+    document.addEventListener('click', function(event) {
+      if (!event.target.closest('.floating-nav')) {
+        navItems.classList.remove('active');
+      }
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>787878</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow: hidden;
+            height: 100vh;
+            background-color: #fee;
+            font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hearts-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .heart {
+            position: absolute;
+            font-size: 20px;
+            color: #ff1493;
+            opacity: 0.5;
+            transition: transform 0.5s ease;
+            pointer-events: none;
+            user-select: none;
+            z-index: 2;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translate(0, 0) rotate(0deg);
+                opacity: 0.5;
+            }
+            25% {
+                transform: translate(-10px, -10px) rotate(-10deg);
+            }
+            50% {
+                transform: translate(0, -20px) rotate(0deg);
+                opacity: 0.8;
+            }
+            75% {
+                transform: translate(10px, -10px) rotate(10deg);
+            }
+        }
+
+        .heart:nth-child(3n) {
+            color: #ff6b9d;
+        }
+
+        .heart:nth-child(3n+1) {
+            color: #ff88aa;
+        }
+
+        .heart:nth-child(5n) {
+            animation-duration: 6s;
+        }
+
+        .heart:nth-child(7n) {
+            animation-duration: 8s;
+        }
+
+        .love-text {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .love-text h1 {
+            font-size: 12vw;
+            background: linear-gradient(to right, #40e0d0, #87cefa, #1e90ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.7);
+            letter-spacing: 4px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.9;
+                text-shadow: 0 0 15px rgba(255, 255, 255, 0.7);
+            }
+            50% {
+                transform: scale(1.08);
+                opacity: 1;
+                text-shadow: 0 0 25px rgba(255, 255, 255, 0.9);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 0.9;
+                text-shadow: 0 0 15px rgba(255, 255, 255, 0.7);
+            }
+        }
+
+        .subtitle {
+            margin-top: 20px;
+            font-size: 2.5vw;
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(30, 144, 255, 0.8);
+            animation: fadeInOut 3s ease-in-out infinite;
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
+        /* 悬浮导航按钮样式 */
+        .floating-nav {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+            transform-origin: center center;
+        }
+
+        .nav-toggle {
+            width: 60px;
+            height: 60px;
+            background-color: rgba(30, 144, 255, 0.9);
+            border-radius: 50%;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 2;
+            transition: all 0.3s ease;
+        }
+
+        .nav-toggle span {
+            font-size: 28px;
+            color: white;
+        }
+
+        .nav-items {
+            position: absolute;
+            top: 0;
+            right: 0;
+            list-style: none;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+
+        .nav-item {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+            opacity: 0;
+            visibility: hidden;
+            transform: scale(0.1);
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            cursor: pointer;
+            color: #1e90ff;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .nav-active .nav-item:nth-child(1) {
+            transform: translateX(-55px) scale(1);
+            opacity: 1;
+            visibility: visible;
+            transition-delay: 0.1s;
+        }
+
+        .nav-active .nav-item:nth-child(2) {
+            transform: translate(-40px, -40px) scale(1);
+            opacity: 1;
+            visibility: visible;
+            transition-delay: 0.2s;
+        }
+
+        .nav-active .nav-item:nth-child(3) {
+            transform: translateY(-55px) scale(1);
+            opacity: 1;
+            visibility: visible;
+            transition-delay: 0.3s;
+        }
+
+        @media (max-width: 768px) {
+            .love-text h1 {
+                font-size: 20vw;
+            }
+            .subtitle {
+                font-size: 5vw;
+            }
+
+            .floating-nav {
+                bottom: 20px;
+                right: 20px;
+            }
+
+            .nav-toggle {
+                width: 50px;
+                height: 50px;
+            }
+
+            .nav-toggle span {
+                font-size: 24px;
+            }
+
+            .nav-item {
+                width: 40px;
+                height: 40px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="hearts-container" id="heartsContainer"></div>
+
+<div class="love-text">
+    <h1>猛击自己高玩两百下！！</h1>
+    <div class="subtitle">hit！200 in damn</div>
+</div>
+
+<!-- 悬浮导航按钮 -->
+<div class="floating-nav">
+    <div class="nav-toggle" id="navToggle">
+        <span>☰</span>
+    </div>
+    <ul class="nav-items">
+        <a href="index.html" class="nav-item" title="主页">H</a>
+        <a href="projectB.html" class="nav-item" title="项目二">2</a>
+        <a href="projectC.html" class="nav-item" title="项目三">3</a>
+    </ul>
+</div>
+
+<script>
+    function createHearts() {
+        const container = document.getElementById('heartsContainer');
+        const heartCount = 60;
+        const heartSymbols = ['❤️', '💖', '💗', '💓', '💞', '💕'];
+
+        // 清空容器
+        container.innerHTML = '';
+
+        for (let i = 0; i < heartCount; i++) {
+            setTimeout(() => {
+                const heart = document.createElement('div');
+                heart.classList.add('heart');
+                heart.innerHTML = heartSymbols[Math.floor(Math.random() * heartSymbols.length)];
+
+                // 设置随机位置
+                const size = Math.random() * 40 + 20;
+                heart.style.fontSize = `${size}px`;
+                heart.style.left = `${Math.random() * 100}%`;
+                heart.style.top = `${Math.random() * 100}%`;
+
+                // 设置动画延迟
+                heart.style.animationDelay = `${Math.random() * 5}s`;
+
+                // 添加到容器
+                container.appendChild(heart);
+            }, i * 100);
+        }
+    }
+
+    // 初始创建爱心
+    createHearts();
+
+    // 每20秒重新创建爱心保持动态性
+    setInterval(createHearts, 20000);
+
+    // 响应窗口大小变化
+    window.addEventListener('resize', createHearts);
+
+    // 悬浮导航按钮交互
+    const navToggle = document.getElementById('navToggle');
+    const floatingNav = document.querySelector('.floating-nav');
+
+    navToggle.addEventListener('click', function() {
+        floatingNav.classList.toggle('nav-active');
+
+        // 增加轻微旋转效果增强视觉反馈
+        if (floatingNav.classList.contains('nav-active')) {
+            setTimeout(() => {
+                navToggle.style.transform = 'rotate(90deg)';
+            }, 200);
+        } else {
+            navToggle.style.transform = 'rotate(0deg)';
+        }
+    });
+
+    // 点击页面其他区域关闭导航
+    document.addEventListener('click', function(e) {
+        if (!floatingNav.contains(e.target) && floatingNav.classList.contains('nav-active')) {
+            floatingNav.classList.remove('nav-active');
+            navToggle.style.transform = 'rotate(0deg)';
+        }
+    });
+</script>
+</body>
+</html>

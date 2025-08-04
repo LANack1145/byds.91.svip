@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>深色风格聊天室</title>
+    <style>
+        :root {
+            --bg-primary: #0a0f1a;
+            --bg-secondary: #111827;
+            --bg-tertiary: #1f2937;
+            --text-primary: #e5e7eb;
+            --text-secondary: #9ca3af;
+            --accent-primary: #4f46e5;
+            --accent-secondary: #7c3aed;
+            --border-color: #374151;
+            --card-bg: rgba(17, 24, 39, 0.7);
+            --success-color: #10b981;
+            --online-color: #10b981;
+            --offline-color: #f59e0b;
+            --hover-effect: translateY(-2px);
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+        }
+
+        .light-mode {
+            --bg-primary: #f9fafb;
+            --bg-secondary: #e5e7eb;
+            --bg-tertiary: #f3f4f6;
+            --text-primary: #1f2937;
+            --text-secondary: #4b5563;
+            --accent-primary: #3b82f6;
+            --accent-secondary: #60a5fa;
+            --border-color: #d1d5db;
+            --card-bg: rgba(229, 231, 235, 0.7);
+            --success-color: #059669;
+            --online-color: #10b981;
+            --offline-color: #f59e0b;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease, border 0.3s ease;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow: hidden;
+        }
+
+        /* 悬浮导航按钮样式 */
+        .floating-nav {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .fab-buttons {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .floating-nav.expanded .fab-buttons {
+            pointer-events: auto;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .fab-main, .fab-button {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: bold;
+        }
+
+        .fab-main {
+            background: var(--accent-primary);
+            color: white;
+            font-size: 24px;
+            z-index: 1001;
+        }
+
+        .fab-button {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            margin-top: 15px;
+            text-decoration: none;
+        }
+
+        .fab-button:hover, .fab-main:hover {
+            transform: var(--hover-effect);
+        }
+
+        .fab-button:nth-child(1) {
+            background: #4CAF50; /* 主页按钮用绿色 */
+        }
+
+        .fab-button:nth-child(2) {
+            background: #2196F3; /* 项目一按钮用蓝色 */
+        }
+
+        .fab-button:nth-child(3) {
+            background: #FF9800; /* 项目三按钮用橙色 */
+        }
+
+        .light-mode .fab-button {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        @media (max-width: 768px) {
+            .floating-nav {
+                bottom: 20px;
+                right: 20px;
+            }
+            .fab-main, .fab-button {
+                width: 45px;
+                height: 45px;
+                font-size: 20px;
+            }
+        }
+
+        /* 导航栏样式 */
+        nav {
+            height: 60px;
+            background: var(--bg-secondary);
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 100;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo svg {
+            width: 28px;
+            height: 28px;
+            fill: var(--accent-primary);
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-button {
+            padding: 8px 16px;
+            background: var(--accent-primary);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-button:hover {
+            transform: var(--hover-effect);
+            background: var(--accent-secondary);
+            opacity: 0.9;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .theme-toggle svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--text-primary);
+        }
+
+        /* 主聊天区域布局 */
+        .chat-container {
+            display: flex;
+            height: calc(100vh - 60px);
+        }
+
+        /* 用户列表区域 */
+        .user-list-container {
+            width: 40%;
+            max-width: 400px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .user-list-header {
+            padding: 15px 20px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-search {
+            padding: 10px 20px;
+            background: var(--bg-tertiary);
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 10px 15px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .user-list {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 10px 0;
+        }
+
+        .user-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+        }
+
+        .user-item:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .user-info {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .user-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .online {
+            background: var(--online-color);
+        }
+
+        .offline {
+            background: var(--offline-color);
+        }
+
+        .last-seen {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* 聊天区布局 */
+        .chat-area {
+            width: 60%;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        /* 聊天消息区域 */
+        .chat-header {
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .current-user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .current-user-info {
+            flex-grow: 1;
+        }
+
+        .current-user-name {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .current-user-status {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .message-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: linear-gradient(rgba(10, 15, 26, 0.6), rgba(10, 15, 26, 0.6)),
+            url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23111122"/><path d="M0 0L100 100M100 0L0 100" stroke="%231a2033" stroke-width="1"/></svg>');
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .light-mode .message-container {
+            background: linear-gradient(rgba(249, 250, 251, 0.6), rgba(249, 250, 251, 0.6)),
+            url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23e5e7eb"/><path d="M0 0L100 100M100 0L0 100" stroke="%23d1d5db" stroke-width="1"/></svg>');
+        }
+
+        .message {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            position: relative;
+        }
+
+        .received {
+            background: var(--bg-tertiary);
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+        }
+
+        .sent {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            margin-top: 5px;
+        }
+
+        .sender-name {
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .sent .sender-name {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .message-time {
+            color: var(--text-secondary);
+            margin-left: 10px;
+        }
+
+        .sent .message-time {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* 输入区域 */
+        .input-container {
+            height: 20%;
+            padding: 15px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-header {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .input-button {
+            background: none;
+            border: none;
+            padding: 8px;
+            border-radius: 50%;
+            cursor: pointer;
+            color: var(--text-primary);
+        }
+
+        .input-button:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .input-button svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .message-input-container {
+            flex-grow: 1;
+            display: flex;
+            gap: 10px;
+        }
+
+        .message-input {
+            flex-grow: 1;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 24px;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            resize: none;
+            font-family: inherit;
+            line-height: 1.4;
+        }
+
+        .send-button {
+            min-width: 50px;
+            border-radius: 24px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+        }
+
+        .send-button:hover {
+            transform: var(--hover-effect);
+            opacity: 0.9;
+        }
+
+        .send-button svg {
+            width: 24px;
+            height: 24px;
+            fill: white;
+        }
+
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-primary);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-secondary);
+        }
+    </style>
+</head>
+<body class="dark-mode">
+<!-- 导航栏 -->
+<nav>
+    <div class="logo">
+        <svg viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-5-9h10v2H7z"/>
+        </svg>
+        <span>聊天室</span>
+    </div>
+    <div class="nav-buttons">
+        <button class="nav-button">
+            <svg viewBox="0 0 24 24">
+                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+            </svg>
+            新建聊天
+        </button>
+        <button class="nav-button">
+            <svg viewBox="0 0 24 24">
+                <path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/>
+            </svg>
+            创建群组
+        </button>
+    </div>
+    <button class="theme-toggle" aria-label="切换主题">
+        <svg id="theme-icon" viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+        </svg>
+    </button>
+</nav>
+
+<!-- 聊天区域 -->
+<div class="chat-container">
+    <!-- 用户列表 -->
+    <div class="user-list-container">
+        <div class="user-list-header">
+            <span>用户列表</span>
+            <span>23人在线</span>
+        </div>
+        <div class="user-search">
+            <input type="text" class="search-box" placeholder="搜索用户...">
+        </div>
+        <div class="user-list">
+            <div class="user-item">
+                <div class="user-avatar">李</div>
+                <div class="user-info">
+                    <div class="user-name">李明</div>
+                    <div class="user-status">
+                        <div class="status-dot online"></div>
+                        在线
+                    </div>
+                </div>
+                <div class="last-seen">刚刚</div>
+            </div>
+            <div class="user-item">
+                <div class="user-avatar">张</div>
+                <div class="user-info">
+                    <div class="user-name">张伟</div>
+                    <div class="user-status">
+                        <div class="status-dot online"></div>
+                        在线
+                    </div>
+                </div>
+                <div class="last-seen">2分钟前</div>
+            </div>
+            <div class="user-item">
+                <div class="user-avatar">王</div>
+                <div class="user-info">
+                    <div class="user-name">王芳</div>
+                    <div class="user-status">
+                        <div class="status-dot offline"></div>
+                        离开
+                    </div>
+                </div>
+                <div class="last-seen">20分钟前</div>
+            </div>
+            <div class="user-item">
+                <div class="user-avatar">赵</div>
+                <div class="user-info">
+                    <div class="user-name">赵雨</div>
+                    <div class="user-status">
+                        <div class="status-dot online"></div>
+                        在线
+                    </div>
+                </div>
+                <div class="last-seen">1小时前</div>
+            </div>
+            <div class="user-item">
+                <div class="user-avatar">陈</div>
+                <div class="user-info">
+                    <div class="user-name">陈晨</div>
+                    <div class="user-status">
+                        <div class="status-dot offline"></div>
+                        离线
+                    </div>
+                </div>
+                <div class="last-seen">3小时前</div>
+            </div>
+            <div class="user-item">
+                <div class="user-avatar">杨</div>
+                <div class="user-info">
+                    <div class="user-name">杨林</div>
+                    <div class="user-status">
+                        <div class="status-dot online"></div>
+                        在线
+                    </div>
+                </div>
+                <div class="last-seen">今天</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 聊天消息区域 -->
+    <div class="chat-area">
+        <!-- 聊天头部 -->
+        <div class="chat-header">
+            <div class="current-user-avatar">张</div>
+            <div class="current-user-info">
+                <div class="current-user-name">张伟</div>
+                <div class="current-user-status">
+                    <div class="status-dot online"></div>
+                    在线 - 正在输入...
+                </div>
+            </div>
+        </div>
+
+        <!-- 消息显示区域 -->
+        <div class="message-container">
+            <!-- 收到消息 -->
+            <div class="message received">
+                <div class="message-text">嘿，你好！今天的项目进度如何？</div>
+                <div class="message-info">
+                    <span class="sender-name">张伟</span>
+                    <span class="message-time">10:25</span>
+                </div>
+            </div>
+
+            <!-- 发送消息 -->
+            <div class="message sent">
+                <div class="message-text">还不错，大部分任务都完成了。API 接口部分已经测试通过。</div>
+                <div class="message-info">
+                    <span class="sender-name">我</span>
+                    <span class="message-time">10:26</span>
+                </div>
+            </div>
+
+            <div class="message received">
+                <div class="message-text">太好了！用户界面的部分你什么时候可以完成？我们明天要展示原型。</div>
+                <div class="message-info">
+                    <span class="sender-name">张伟</span>
+                    <span class="message-time">10:27</span>
+                </div>
+            </div>
+
+            <div class="message sent">
+                <div class="message-text">我今天下午就可以完成。有几个细节还想和你讨论一下：</div>
+                <div class="message-info">
+                    <span class="sender-name">我</span>
+                    <span class="message-time">10:28</span>
+                </div>
+            </div>
+
+            <div class="message sent">
+                <div class="message-text">1. 消息通知系统需要集成到导航栏吗？<br>
+                    2. 用户状态更新是否需要即时同步？<br>
+                    3. 文件上传功能在聊天中是拖放实现还是传统按钮？
+                </div>
+                <div class="message-info">
+                    <span class="sender-name">我</span>
+                    <span class="message-time">10:29</span>
+                </div>
+            </div>
+
+            <div class="message received">
+                <div class="message-text">好问题，我建议：</div>
+                <div class="message-info">
+                    <span class="sender-name">张伟</span>
+                    <span class="message-time">10:31</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 输入区域 -->
+        <div class="input-container">
+            <div class="input-header">
+                <button class="input-button">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M19.5 5.5v13l-7-7-7 7v-13l7-7 7 7z"/>
+                    </svg>
+                </button>
+                <button class="input-button">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-4.86 8.86l-3 3.87L9 13.14 6 17h12l-3.86-5.14z"/>
+                    </svg>
+                </button>
+                <button class="input-button">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="message-input-container">
+                <textarea class="message-input" placeholder="输入消息..." rows="1"></textarea>
+                <button class="send-button">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 悬浮圆形按钮导航栏 -->
+<div class="floating-nav" id="floatingNav">
+    <div class="fab-main" id="fabMain">☰</div>
+    <div class="fab-buttons">
+        <a class="fab-button" href="index.html" title="主页">H</a>
+        <a class="fab-button" href="xiaob.html" title="项目一">1</a>
+        <a class="fab-button" href="projectC.html" title="项目三">3</a>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const themeToggle = document.querySelector('.theme-toggle');
+        const themeIcon = document.querySelector('#theme-icon');
+
+        // 悬浮导航按钮变量
+        const floatingNav = document.getElementById('floatingNav');
+        const fabMain = document.getElementById('fabMain');
+        const fabButtons = document.querySelector('.fab-buttons');
+
+        // 初始化加载主题
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') {
+            document.body.classList.add('light-mode');
+            themeIcon.innerHTML = '<path d="M12,7a5,5 0 1,0 5,5 5,5 0 0,0 -5,-5Z"/>';
+        }
+
+        // 主题切换事件
+        themeToggle.addEventListener('click', function() {
+            document.body.classList.toggle('light-mode');
+            const isLightMode = document.body.classList.contains('light-mode');
+
+            // 更新本地存储
+            localStorage.setItem('theme', isLightMode ? 'light' : 'dark');
+
+            // 更新主题图标
+            if (isLightMode) {
+                themeIcon.innerHTML = '<path d="M12,7a5,5 0 1,0 5,5 5,5 0 0,0 -5,-5Z"/>';
+            } else {
+                themeIcon.innerHTML = '<path d="M12,2C6.48,2 2,6.48 2,12s4.48,10 10,10 10-4.48 10-10S17.52,2 12,2z"/>';
+            }
+        });
+
+        // 自动调整输入框高度
+        const messageInput = document.querySelector('.message-input');
+        messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+
+            // 限制最大高度（4行）
+            if (this.scrollHeight > 100) {
+                this.style.height = '100px';
+                this.style.overflowY = 'auto';
+            } else {
+                this.style.overflowY = 'hidden';
+            }
+        });
+
+        // 发送按钮功能
+        const sendButton = document.querySelector('.send-button');
+        sendButton.addEventListener('click', function() {
+            if (messageInput.value.trim() !== '') {
+                sendMessage(messageInput.value);
+                messageInput.value = '';
+                messageInput.style.height = 'auto';
+            }
+        });
+
+        // 按Enter发送消息（Shift+Enter换行）
+        messageInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendButton.click();
+            }
+        });
+
+        // 模拟发送消息
+        function sendMessage(message) {
+            const messageContainer = document.querySelector('.message-container');
+
+            // 创建新消息元素
+            const newMessage = document.createElement('div');
+            newMessage.classList.add('message', 'sent');
+
+            const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+
+            newMessage.innerHTML = `
+                    <div class="message-text">${message}</div>
+                    <div class="message-info">
+                        <span class="sender-name">我</span>
+                        <span class="message-time">${time}</span>
+                    </div>
+                `;
+
+            messageContainer.appendChild(newMessage);
+
+            // 滚动到底部
+            messageContainer.scrollTop = messageContainer.scrollHeight;
+
+            // 模拟回复（1-3秒后）
+            setTimeout(() => {
+                const replies = [
+                    "好的，明白了。",
+                    "这个建议很合理。",
+                    "我们需要深入讨论一下这个。",
+                    "稍后我会给你看一个原型。",
+                    "这个问题明天会议上讨论吧。"
+                ];
+
+                const randomReply = replies[Math.floor(Math.random() * replies.length)];
+                const replyTime = new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+
+                const replyMessage = document.createElement('div');
+                replyMessage.classList.add('message', 'received');
+                replyMessage.innerHTML = `
+                        <div class="message-text">${randomReply}</div>
+                        <div class="message-info">
+                            <span class="sender-name">张伟</span>
+                            <span class="message-time">${replyTime}</span>
+                        </div>
+                    `;
+
+                messageContainer.appendChild(replyMessage);
+                messageContainer.scrollTop = messageContainer.scrollHeight;
+            }, 1000 + Math.random() * 2000);
+        }
+
+        // 悬浮按钮交互逻辑
+        fabMain.addEventListener('click', function() {
+            floatingNav.classList.toggle('expanded');
+        });
+
+        // 点击页面其他地方收起悬浮按钮
+        document.addEventListener('click', function(e) {
+            const isClickInsideFab = floatingNav.contains(e.target);
+            const isFabMain = e.target === fabMain;
+
+            if (!isClickInsideFab && !isFabMain && floatingNav.classList.contains('expanded')) {
+                floatingNav.classList.remove('expanded');
+            }
+        });
+
+        // 防止按钮点击时收起
+        fabButtons.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    });
+</script>
+</body>
+</html>
