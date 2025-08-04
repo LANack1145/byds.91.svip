@@ -62,6 +62,7 @@
             width: 40px;
             height: 40px;
             margin-right: 10px;
+            transition: opacity 0.3s ease;
         }
 
         .nav-links {
@@ -196,12 +197,12 @@
 <!-- 左侧导航栏 -->
 <nav class="navbar">
     <div class="logo">
-        <img src="byds.png" alt="Logo">
+        <img id="logo-img" src="byds.png" alt="Logo">
     </div>
 
     <div class="nav-links">
         <a href="index.html" class="active">首页</a>
-        <a href="xiaoa.html">项目一</a> <!-- 关键修改：添加了正确的项目链接 -->
+        <a href="xiaoa.html">项目一</a>
         <a href="xiaob.html">项目二</a>
         <a href="xiaoc.html">项目三</a>
         <a href="wenzhanga.html">文章一</a>
@@ -243,20 +244,28 @@
     const themeToggle = document.getElementById('themeToggle');
     const body = document.body;
     const navLinks = document.querySelectorAll('.nav-links a');
+    const logoImg = document.getElementById('logo-img');
 
     // 检查本地存储的主题偏好
     if (localStorage.getItem('theme') === 'dark') {
         body.classList.add('dark-mode');
+        // 深色模式时使用 transit.png
+        logoImg.src = 'transit.png';
     }
 
     themeToggle.addEventListener('click', () => {
         body.classList.toggle('dark-mode');
+        const isDarkMode = body.classList.contains('dark-mode');
 
         // 保存用户偏好
-        if (body.classList.contains('dark-mode')) {
+        if (isDarkMode) {
             localStorage.setItem('theme', 'dark');
+            // 深色模式时使用 transit.png
+            logoImg.src = 'transit.png';
         } else {
             localStorage.setItem('theme', 'light');
+            // 浅色模式时使用 byds.png
+            logoImg.src = 'byds.png';
         }
     });
 
