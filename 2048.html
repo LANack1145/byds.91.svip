@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>军旗2048</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #faf8ef;
+            margin: 0;
+            padding: 20px;
+            min-width: 420px;
+        }
+        .header {
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            font-size: 40px;
+            margin: 0;
+            color: #776e65;
+        }
+        .header p {
+            margin: 10px 0;
+            color: #776e65;
+        }
+        .score-container {
+            display: inline-block;
+            background: #bbada0;
+            padding: 10px 20px;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            margin: 10px;
+        }
+        .game-container {
+            width: 420px;
+            height: 420px;
+            padding: 15px;
+            background-color: #bbada0;
+            border-radius: 6px;
+            margin: 0 auto;
+            position: relative;
+            box-sizing: border-box;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-gap: 15px;
+            width: 100%;
+            height: 100%;
+        }
+        .cell {
+            background-color: rgba(238, 228, 218, 0.35);
+            border-radius: 3px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: #776e65;
+            min-height: 0;
+            min-width: 0;
+            position: relative;
+        }
+        .tile {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 3px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            box-sizing: border-box;
+            padding: 5px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .tile-2 { background-color: #eee4da; font-size: 24px; }
+        .tile-4 { background-color: #ede0c8; font-size: 24px; }
+        .tile-8 { background-color: #f2b179; font-size: 24px; }
+        .tile-16 { background-color: #f59563; font-size: 24px; }
+        .tile-32 { background-color: #f67c5f; font-size: 24px; }
+        .tile-64 { background-color: #f65e3b; font-size: 24px; }
+        .tile-128 { background-color: #edcf72; font-size: 22px; }
+        .tile-256 { background-color: #edcc61; font-size: 22px; }
+        .tile-512 { background-color: #edc850; font-size: 22px; }
+        .tile-1024 { background-color: #edc53f; font-size: 18px; }
+        .tile-2048 { background-color: #edc22e; font-size: 18px; }
+        .tile-4096 { background-color: #3c3a32; color: white; font-size: 18px; }
+        .tile-8192 { background-color: #1c1b1a; color: white; font-size: 18px; }
+        .tile-16384 { background-color: #000000; color: white; font-size: 16px; }
+        .game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(238, 228, 218, 0.73);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            z-index: 100;
+            display: none;
+        }
+        .game-over p {
+            font-size: 40px;
+            font-weight: bold;
+            color: #776e65;
+            margin: 0;
+        }
+        button {
+            background: #8f7a66;
+            border-radius: 3px;
+            padding: 10px 20px;
+            font-family: Arial, sans-serif;
+            font-weight: bold;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            margin-top: 20px;
+        }
+        button:hover {
+            background: #9f8b77;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>军旗2048</h1>
+        <p>使用方向键移动棋子，相同棋子合并升级！</p>
+        <div class="score-container">分数: <span id="score">0</span></div>
+        <button id="new-game">新游戏</button>
+    </div>
+    <div class="game-container">
+        <div class="grid" id="grid"></div>
+        <div class="game-over" id="game-over">
+            <p>游戏结束!</p>
+            <button id="try-again">再试一次</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const grid = document.getElementById('grid');
+            const scoreDisplay = document.getElementById('score');
+            const gameOverDisplay = document.getElementById('game-over');
+            const newGameBtn = document.getElementById('new-game');
+            const tryAgainBtn = document.getElementById('try-again');
+            
+            let board = [];
+            let score = 0;
+            let gameOver = false;
+            
+            // 军旗等级对应（按照要求的晋升路径）
+            const militaryRanks = {
+                2: '工兵',
+                4: '班长',
+                8: '排长',
+                16: '连长',
+                32: '营长',
+                64: '团长',
+                128: '旅长',
+                256: '师长',
+                512: '军长',
+                1024: '司令',
+                2048: '总司令',
+                4096: '大元帅',
+                8192: '统帅',
+                16384: '最高统帅'
+            };
+            
+            // 初始化游戏
+            function initGame() {
+                board = [
+                    [0, 0, 0, 0],
+                    [0, 0, 0, 0],
+                    [0, 0, 0, 0],
+                    [0, 0, 0, 0]
+                ];
+                score = 0;
+                gameOver = false;
+                scoreDisplay.textContent = score;
+                gameOverDisplay.style.display = 'none';
+                
+                // 清空网格
+                grid.innerHTML = '';
+                
+                // 创建16个单元格
+                for (let i = 0; i < 16; i++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    grid.appendChild(cell);
+                }
+                
+                // 添加两个初始棋子
+                addRandomTile();
+                addRandomTile();
+                
+                updateView();
+            }
+            
+            // 添加随机棋子
+            function addRandomTile() {
+                if (isBoardFull()) return false;
+                
+                let row, col;
+                do {
+                    row = Math.floor(Math.random() * 4);
+                    col = Math.floor(Math.random() * 4);
+                } while (board[row][col] !== 0);
+                
+                board[row][col] = Math.random() < 0.9 ? 2 : 4;
+                return true;
+            }
+            
+            // 检查棋盘是否已满
+            function isBoardFull() {
+                for (let row = 0; row < 4; row++) {
+                    for (let col = 0; col < 4; col++) {
+                        if (board[row][col] === 0) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+            
+            // 更新视图
+            function updateView() {
+                const cells = document.querySelectorAll('.cell');
+                
+                // 先移除所有现有的tile
+                cells.forEach(cell => {
+                    const tiles = cell.querySelectorAll('.tile');
+                    tiles.forEach(tile => tile.remove());
+                });
+                
+                for (let row = 0; row < 4; row++) {
+                    for (let col = 0; col < 4; col++) {
+                        const index = row * 4 + col;
+                        const cell = cells[index];
+                        const value = board[row][col];
+                        
+                        if (value !== 0) {
+                            const tile = document.createElement('div');
+                            tile.className = `tile tile-${value}`;
+                            tile.textContent = militaryRanks[value] || value;
+                            cell.appendChild(tile);
+                        }
+                    }
+                }
+            }
+            
+            // 移动棋子
+            function moveTiles(direction) {
+                if (gameOver) return false;
+                
+                let moved = false;
+                const oldBoard = JSON.parse(JSON.stringify(board));
+                
+                // 向左移动
+                if (direction === 'left') {
+                    for (let row = 0; row < 4; row++) {
+                        // 移除空格
+                        let nonZeroTiles = board[row].filter(val => val !== 0);
+                        // 合并相同棋子
+                        for (let i = 0; i < nonZeroTiles.length - 1; i++) {
+                            if (nonZeroTiles[i] === nonZeroTiles[i + 1]) {
+                                nonZeroTiles[i] *= 2;
+                                nonZeroTiles[i + 1] = 0;
+                                score += nonZeroTiles[i];
+                                moved = true;
+                            }
+                        }
+                        // 再次移除空格
+                        nonZeroTiles = nonZeroTiles.filter(val => val !== 0);
+                        // 填充剩余位置
+                        while (nonZeroTiles.length < 4) {
+                            nonZeroTiles.push(0);
+                        }
+                        board[row] = nonZeroTiles;
+                    }
+                }
+                // 向右移动
+                else if (direction === 'right') {
+                    for (let row = 0; row < 4; row++) {
+                        // 移除空格
+                        let nonZeroTiles = board[row].filter(val => val !== 0);
+                        // 合并相同棋子
+                        for (let i = nonZeroTiles.length - 1; i > 0; i--) {
+                            if (nonZeroTiles[i] === nonZeroTiles[i - 1]) {
+                                nonZeroTiles[i] *= 2;
+                                nonZeroTiles[i - 1] = 0;
+                                score += nonZeroTiles[i];
+                                moved = true;
+                            }
+                        }
+                        // 再次移除空格
+                        nonZeroTiles = nonZeroTiles.filter(val => val !== 0);
+                        // 填充剩余位置
+                        while (nonZeroTiles.length < 4) {
+                            nonZeroTiles.unshift(0);
+                        }
+                        board[row] = nonZeroTiles;
+                    }
+                }
+                // 向上移动
+                else if (direction === 'up') {
+                    for (let col = 0; col < 4; col++) {
+                        let column = [board[0][col], board[1][col], board[2][col], board[3][col]];
+                        // 移除空格
+                        let nonZeroTiles = column.filter(val => val !== 0);
+                        // 合并相同棋子
+                        for (let i = 0; i < nonZeroTiles.length - 1; i++) {
+                            if (nonZeroTiles[i] === nonZeroTiles[i + 1]) {
+                                nonZeroTiles[i] *= 2;
+                                nonZeroTiles[i + 1] = 0;
+                                score += nonZeroTiles[i];
+                                moved = true;
+                            }
+                        }
+                        // 再次移除空格
+                        nonZeroTiles = nonZeroTiles.filter(val => val !== 0);
+                        // 填充剩余位置
+                        while (nonZeroTiles.length < 4) {
+                            nonZeroTiles.push(0);
+                        }
+                        // 更新列
+                        for (let row = 0; row < 4; row++) {
+                            board[row][col] = nonZeroTiles[row];
+                        }
+                    }
+                }
+                // 向下移动
+                else if (direction === 'down') {
+                    for (let col = 0; col < 4; col++) {
+                        let column = [board[0][col], board[1][col], board[2][col], board[3][col]];
+                        // 移除空格
+                        let nonZeroTiles = column.filter(val => val !== 0);
+                        // 合并相同棋子
+                        for (let i = nonZeroTiles.length - 1; i > 0; i--) {
+                            if (nonZeroTiles[i] === nonZeroTiles[i - 1]) {
+                                nonZeroTiles[i] *= 2;
+                                nonZeroTiles[i - 1] = 0;
+                                score += nonZeroTiles[i];
+                                moved = true;
+                            }
+                        }
+                        // 再次移除空格
+                        nonZeroTiles = nonZeroTiles.filter(val => val !== 0);
+                        // 填充剩余位置
+                        while (nonZeroTiles.length < 4) {
+                            nonZeroTiles.unshift(0);
+                        }
+                        // 更新列
+                        for (let row = 0; row < 4; row++) {
+                            board[row][col] = nonZeroTiles[row];
+                        }
+                    }
+                }
+                
+                // 检查是否有移动
+                if (JSON.stringify(oldBoard) !== JSON.stringify(board)) {
+                    moved = true;
+                }
+                
+                if (moved) {
+                    addRandomTile();
+                    scoreDisplay.textContent = score;
+                    updateView();
+                    
+                    if (isGameOver()) {
+                        gameOver = true;
+                        gameOverDisplay.style.display = 'flex';
+                    }
+                }
+                
+                return moved;
+            }
+            
+            // 检查游戏是否结束
+            function isGameOver() {
+                if (!isBoardFull()) return false;
+                
+                // 检查水平方向是否有可合并的棋子
+                for (let row = 0; row < 4; row++) {
+                    for (let col = 0; col < 3; col++) {
+                        if (board[row][col] === board[row][col + 1]) {
+                            return false;
+                        }
+                    }
+                }
+                
+                // 检查垂直方向是否有可合并的棋子
+                for (let col = 0; col < 4; col++) {
+                    for (let row = 0; row < 3; row++) {
+                        if (board[row][col] === board[row + 1][col]) {
+                            return false;
+                        }
+                    }
+                }
+                
+                return true;
+            }
+            
+            // 键盘事件监听
+            document.addEventListener('keydown', (event) => {
+                if (gameOver) return;
+                
+                switch (event.key) {
+                    case 'ArrowLeft':
+                        moveTiles('left');
+                        break;
+                    case 'ArrowRight':
+                        moveTiles('right');
+                        break;
+                    case 'ArrowUp':
+                        moveTiles('up');
+                        break;
+                    case 'ArrowDown':
+                        moveTiles('down');
+                        break;
+                }
+            });
+            
+            // 新游戏按钮
+            newGameBtn.addEventListener('click', initGame);
+            tryAgainBtn.addEventListener('click', initGame);
+            
+            // 开始游戏
+            initGame();
+        });
+    </script>
+</body>
+</html>
